@@ -3,13 +3,11 @@ package com.example.foodrecipes
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.foodrecipes.glide.GlideApp
 import com.example.foodrecipes.models.Recipe
@@ -99,6 +97,13 @@ class RecipeActivity : BaseActivity() {
             // - social score
             // - recipe title
             // - all ingredients as seen in layout
+            recipe_title.text = recipe.title
+            recipe_social_score.text = recipe.social_rank.toInt().toString()
+            for ( item:String in recipe.ingredients ) {
+                val mIngredients = TextView(this)
+                mIngredients.text = item
+                ingredients_container.addView(mIngredients)
+            }
 
             showParent()
             showProgressBar(false)

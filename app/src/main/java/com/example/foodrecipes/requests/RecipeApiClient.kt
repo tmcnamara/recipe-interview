@@ -11,12 +11,13 @@ import com.example.foodrecipes.util.Constants.Companion.NETWORK_TIMEOUT
 import kotlinx.coroutines.*
 import retrofit2.Call
 import java.io.IOException
+import java.util.*
 
 class RecipeApiClient {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var searchJob: Job = Job()
-
+    private var detailsJob: Job = Job()
     companion object {
         val TAG : String = "RecipeApiClient"
         val instance : RecipeApiClient = RecipeApiClient()
@@ -52,7 +53,17 @@ class RecipeApiClient {
                        if (response.code() == 200) {
                            //TODO #1 - Handle the getRecipes response by publishing the recipes back into the LiveData.
                            // Note that the api has paging so if you beyond page 1, add the recipes to the existing list prior to the publish.
-
+                                if(pageNumber >1){
+                                    val  updatedList:MutableList<Recipe> = mutableListOf()
+                                   val eList =  recipes.value
+                                    eList?.let { updatedList.addAll(it) }
+                                    response.body()?.let {
+                                        updatedList.addAll(it.recipes)
+                                    }
+                                    recipes.postValue(updatedList)
+                                }else {
+                                    response.body()?.let { recipes.postValue(it.recipes) }
+                                }
                        } else {
                            val error = response.errorBody().toString()
                            Log.e(TAG, "Error on search api: $error")
@@ -80,6 +91,25 @@ class RecipeApiClient {
         try {
 
             //TODO #2 - Follow the same pattern you see searchRecipesApi to implement the getRecipe call here.
+
+           detailsJob = coroutineScope.launch {
+                withTimeout(NETWORK_TIMEOUT) {
+                    try {
+                        val response = getRecipe(recipeId).execute()
+
+                        if (response.code() == 200) {
+                                response.body()?.let { recipe.postValue(it.recipe) }
+                        } else {
+                            val error = response.errorBody().toString()
+                            Log.e(TAG, "Error on search api: $error")
+                            recipe.postValue(null)
+                        }
+                    } catch (e:Exception){
+                        Log.e(TAG, "Exception on search api",e)
+                        recipe.postValue(null)
+                    }
+                }
+            }
 
         }catch (e: TimeoutCancellationException){
             Log.e(TAG, "Timeout exception on search api", e)

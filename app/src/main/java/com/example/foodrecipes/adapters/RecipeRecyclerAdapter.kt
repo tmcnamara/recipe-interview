@@ -2,9 +2,7 @@ package com.example.foodrecipes.adapters
 
 
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
@@ -47,6 +45,11 @@ class RecipeRecyclerAdapter(private val  onRecipeListener: OnRecipeListener) : R
                 .into(holder.image)
 
             //TODO #3 populate the title, publisher, socialScore on the RecipeViewHolder. Display score as a rounded whole number.
+            val rHolder = holder as RecipeViewHolder
+            rHolder.title.text  = recipes.get(position).title
+            rHolder.publisher.text = recipes.get(position).publisher
+            rHolder.socialScore.text = recipes.get(position).social_rank.toInt().toString()
+
 
         } else if (itemViewType == CATEGORY_TYPE) {
             val requestOptions = RequestOptions().placeholder(R.drawable.ic_launcher_background)
